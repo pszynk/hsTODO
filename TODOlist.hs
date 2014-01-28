@@ -16,6 +16,7 @@ import System.Console.Haskeline (InputT
   , setComplete
   , outputStrLn)
 
+import Control.Monad.State.Strict
 import Logic
 import Command
 
@@ -25,17 +26,19 @@ __PROMPT = "todo> "
 main :: IO ()
 main = do
   time <- getCurrentTime
-  runInputT defaultSettings (interloop $ getEmptyStateData time)
---main = runInputT defaultSettings (interloop $ getEmptyStateData time)
-  --where
-    --time = return getCurrentTime
+  (runStateT (runInputT defaultSettings interloop) $ getEmptyStateData time) >> return ()
 
-interloop :: TodoStateData -> InputT IO ()
-interloop sd = do
-  line <- getInputLine __PROMPT
+interloop :: InputT TodoStateTIO ()
+interloop = do
+  time <- lift getTime
+  line <- getInputLine $ (show time) ++ __PROMPT
   case line of
     Nothing -> return ()
-    Just "time" -> lift () >> interloop sd
-    Just cmdline -> liftIO (runCommand $ words cmdline) >> interloop sd
-  where
-    now = getCurrentTime
+    Just cmdline -> do
+      status <- runCommand $ words cmdline
+      case status of
+        (Left err) -> outputStrLn err
+        (Right Nothing) -> return ()
+        (Right (Just scc)) -> outputStrLn scc
+      interloop
+
