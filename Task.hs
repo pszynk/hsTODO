@@ -1,63 +1,63 @@
-module Task (TaskList
-  , getEmptyTaskList
-)	where
+module Task 
+  ( Task(..)
+  , new
+  , isDone
+  , isUndone
+  )	where
 
-import Data.Time.Clock (UTCTime, NominalDiffTime, utctDay)
-data Repeatability = Once | Daily | Weekly | Monthly | Yearly |
-  CustomPeriod {_repPeriod :: NominalDiffTime} | CustomOccurrence {_repOccurrence :: [UTCTime]}
 
-data TaskRealization = TaskRealization {_trDeadline :: UTCTime, _trDoneDate :: UTCTime}
+import Data.Time (UTCTime)
 
-type TaskID = Int
+import Repeat
 
-data Task = Task {_tskID :: TaskID
-  , _tskTitle :: String
+--data TaskRealization = TaskRealization {_trDeadline :: UTCTime, _trDoneDate :: UTCTime} deriving (Show)
+
+ --_tskID :: TaskNR
+  --, _tskPastRealizations :: [TaskRealization]
+data Task = Task
+  { _tskTitle :: String
   , _tskInfo :: Maybe String
-  , _tskRepeat :: Repeatability
-  , _tskPastRealizations :: [TaskRealization]
-  , _tskNextDeadline :: Maybe UTCTime
-  }
+  , _tskRepeat :: Repeat
+  , _tskDeadline :: UTCTime
+  , _tskRealization :: Maybe UTCTime
+  } deriving (Eq, Ord, Show)
 
-type TaskList = [Task]
+new :: String -> Maybe String -> Repeat -> UTCTime -> Task
+new title minfo trepeat deadline =
+  Task title minfo trepeat deadline Nothing
 
-getEmptyTaskList :: [Task]
-getEmptyTaskList = []
+isDone :: Task -> Bool
+isDone Task{_tskRealization = Nothing} = True
+isDone _ = False
 
+isUndone :: Task -> Bool
+isUndone task = not $ isDone task
 
-nextDate :: Repeatability -> UTCTime -> Maybe UTCTime
-nextDate Once _ = Nothing
-nextDate _ date = Just date --TODO poprawić dodawanie dat
-
-addNewTask :: TaskList -> Task -> TaskList
-addNewTask tlist task = task:tlist
-
-createNewTask :: TaskID -> String -> Maybe String -> Repeatability -> UTCTime -> Task
-createNewTask tid title minfo trepeat deadline =
-  Task tid title minfo trepeat [] (Just deadline)
 
 type TaskFilter = Task -> Bool
 
-doneTasksFilter :: TaskFilter
-doneTasksFilter task = not $ null $ _tskPastRealizations task
+--doneTasksFilter :: TaskFilter
+--doneTasksFilter task = not $ null $ _tskPastRealizations task
 
-overdueTasksFilter :: UTCTime -> TaskFilter
-overdueTasksFilter _ Task {_tskNextDeadline=Nothing} = False
-overdueTasksFilter time Task {_tskNextDeadline=Just deadline} = time < deadline
+--overdueTasksFilter :: UTCTime -> TaskFilter
+--overdueTasksFilter _ Task {_tskDeadline=Nothing} = False
+--overdueTasksFilter time Task {_tskDeadline=Just deadline} = time < deadline
 
-todayTasksFilter :: UTCTime -> TaskFilter
-todayTasksFilter _ Task {_tskNextDeadline=Nothing} = False
-todayTasksFilter time Task {_tskNextDeadline=Just deadline} = utctDay time == utctDay deadline
+--todayTasksFilter :: UTCTime -> TaskFilter
+--todayTasksFilter _ Task {_tskDeadline=Nothing} = False
+--todayTasksFilter time Task {_tskDeadline=Just deadline} = utctDay time == utctDay deadline
 
-type TaskError = String
 
-doTask :: Task -> UTCTime -> Either TaskError Task
-doTask Task {_tskNextDeadline=Nothing} _ = Left "O"
-doTask task time = Right task{_tskPastRealizations = TaskRealization deadline time : past
-    , _tskNextDeadline=nextDate trepeat deadline}
-      where
-        trepeat = _tskRepeat task
-        past = _tskPastRealizations task
-        Just deadline = _tskNextDeadline task
+--type TaskError = String
+
+--doTask :: Task -> UTCTime -> Either TaskError Task
+--doTask Task {_tskDeadline=Nothing} _ = Left "Zadanie zostało już wykonane"
+--doTask task time = Right task{_tskPastRealizations = TaskRealization deadline time : past
+--    , _tskDeadline=nextDate trepeat deadline}
+--      where
+--        trepeat = _tskRepeat task
+--        past = _tskPastRealizations task
+--        Just deadline = _tskDeadline task
 
 --setupTask task
 --addTask tlist task

@@ -17,7 +17,7 @@ import System.Console.Haskeline (InputT
   , outputStrLn)
 
 import Control.Monad.State.Strict
-import Logic
+import Statedata
 import Command
 import Utils
 

@@ -1,12 +1,12 @@
 --module Logic (StateWithIO
-  --, StateData
-  --, getEmptyStateData
+  --, Statedata
+  --, getEmptyStatedata
   --, runStateT
   --, lift
   --, get
   --, getTime
 --)	where
-module Logic where
+module Statedata where
 
 import Control.Monad.State.Strict
 import Control.Monad.Trans()
@@ -17,12 +17,12 @@ import Task
 import Repeat()
 import qualified Taskbook as TB
 
-data StateData = StateData {_sdStartTime :: UTCTime, _sdTimeStamp :: UTCTime, _sdTasks :: TB.Taskbook}
+data Statedata = Statedata {_sdStartTime :: UTCTime, _sdTimeStamp :: UTCTime, _sdTasks :: TB.Taskbook}
 
-type StateWithIO a = StateT StateData IO a
+type StateWithIO a = StateT Statedata IO a
 
-empty :: UTCTime -> StateData
-empty time = StateData time time TB.empty
+empty :: UTCTime -> Statedata
+empty time = Statedata time time TB.empty
 
 setTime :: UTCTime -> StateWithIO ()
 setTime time = do
