@@ -4,37 +4,76 @@ module Taskbook
   , TaskSet
   , empty
   , insert
+  , insertList
+  , delete
+  , deleteList
+  , toList
+  , doTask
+  , doTaskList
   )	where
 
+import Data.Maybe
+import Data.Time (UTCTime)
 import qualified Data.Set as DS
 
 import Task
 
 type TaskNR = Int
 type TaskSet = DS.Set Task
-data Taskbook = Taskbook
-  { _tbDone :: TaskSet
-  , _tbUndone :: TaskSet
-  }
+newtype Taskbook = Taskbook {_tbTasks :: TaskSet}
 
 empty :: Taskbook
-empty = Taskbook DS.empty DS.empty
+empty = Taskbook DS.empty
 
 insert :: Taskbook -> Task -> Taskbook
-insert tbook task
-  | isDone task = tbook{_tbDone=DS.insert task done}
-  | otherwise = tbook{_tbUndone=DS.insert task undone}
+insert tbook task = tbook{_tbTasks=DS.insert task tasks}
   where
-    done = _tbDone tbook
-    undone= _tbUndone tbook
+    tasks = _tbTasks tbook
+
+insertList :: Taskbook -> [Task] -> Taskbook
+insertList tbook [] = tbook
+insertList tbook (x:xs) = insertList (insert tbook x) xs
+  where
+    tasks = _tbTasks tbook
+
+delete :: Taskbook -> Task -> Taskbook
+delete tbook task = tbook{_tbTasks=DS.delete task tasks}
+  where
+    tasks = _tbTasks tbook
+
+deleteList :: Taskbook -> [Task] -> Taskbook
+deleteList tbook [] = tbook
+deleteList tbook (x:xs) = deleteList (delete tbook x) xs
+  where
+    tasks = _tbTasks tbook
 
 member :: Taskbook -> Task -> Bool
-member tbook task
-  | isDone task = DS.member task done
-  | otherwise = DS.member task undone
+member tbook task = DS.member task tasks
   where
-    done = _tbDone tbook
-    undone= _tbUndone tbook
+    tasks = _tbTasks tbook
+
+doTask :: Taskbook -> Task -> UTCTime -> Taskbook
+doTask tbook task time =
+  if not $ member tbook task
+  then tbook
+  else insertList (delete tbook task) (done:maybeToList mnext)
+    where
+      (done, mnext) = doMe task time
+
+doTaskList :: Taskbook -> [Task] -> UTCTime -> Taskbook
+doTaskList tbook [] _ = tbook
+doTaskList tbook (x:xs) time = doTaskList (doTask tbook x time) xs time
+
+toList :: Taskbook -> [Task]
+toList = DS.toList . _tbTasks
+--doneList :: Taskbook -> [Task]
+--doneList = DS.toList . _tbTasks
+
+--undoneList :: Taskbook -> [Task]
+--undoneList = DS.toList . _tbTasks
+
+--allList :: Taskbook -> [Task]
+--allList tb = doneList tb ++ undoneList tb
 
 
 --getNewTaskNR :: TaskSet -> TaskNR

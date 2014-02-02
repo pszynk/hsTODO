@@ -17,22 +17,22 @@ import System.Console.Haskeline (InputT
   , outputStrLn)
 
 import Control.Monad.State.Strict
-import Statedata
+import Statedata as SD
 import Command
 import Utils
 
 __PROMPT :: String
-__PROMPT = "todo" ++ __PROMPT_SIGN ++ " "
+__PROMPT = " todo" ++ __PROMPT_SIGN ++ " "
 
 main :: IO ()
 main = do
   time <- getCurrentTime
-  void (runStateT (runInputT defaultSettings interloop) $ getEmptyStateData time)
+  void (runStateT (runInputT defaultSettings interloop) $ SD.empty time)
 
-interloop :: InputT TodoStateTIO ()
+interloop :: InputT StateWithIO ()
 interloop = do
-  time <- lift getTime
-  line <- getInputLine $ show time ++ __PROMPT
+  time <- lift getTestTime
+  line <- getInputLine $ date2str time ++ __PROMPT
   case line of
     Nothing -> return ()
     Just cmdline -> do

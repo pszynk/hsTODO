@@ -1,6 +1,7 @@
 module Utils (__PROMPT_SIGN
   , __EPOCH_DAY
   , __TIME_24H
+  , date2str
 )	where
 
 import Data.Time
@@ -19,3 +20,5 @@ __TIME_24H :: NominalDiffTime
 __TIME_24H = diffUTCTime (readTime defaultTimeLocale "%X" "23:59:59") __EPOCH_DAY
 
 
+date2str :: UTCTime -> String
+date2str = formatTime defaultTimeLocale "%F %R"

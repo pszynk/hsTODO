@@ -5,7 +5,7 @@ module Repeat
 
 import Data.Time (UTCTime, utctDay, addDays, addGregorianMonthsClip, addGregorianYearsClip)
 
-data Repeat = Once | Daily | Weekly | Monthly | Yearly deriving (Eq, Ord, Show)
+data Repeat = Once | Daily | Weekly | Monthly | Yearly deriving (Eq, Ord, Show, Read)
 {--|
   CustomPeriod {_repPeriod :: NominalDiffTime} | CustomOccurrence {_repOccurrence :: [UTCTime]} -}
 
