@@ -19,5 +19,5 @@ executable htd
                     parallel >= 3 && < 4,
                     time
                     old-locale
-    main-is:        TODOlist.hs
+    main-is:        todol.hs
     ghc-options:    -Wall

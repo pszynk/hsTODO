@@ -1,19 +1,15 @@
+{-
+Plik z funkcją main programu.
+Program wykorzsytuje moduł haskeline
+dla zwiększenia wykody użytkownika
+-}
 import Data.Time.Clock (getCurrentTime)
-import Control.Monad.Trans (liftIO)
-import System.Console.ANSI (Color(..)
-  , ColorIntensity(..)
-  , ConsoleLayer(..)
-  , SGR(..)
-  , Underlining(..)
-  , clearScreen
-  , setCursorPosition
-  , setSGRCode)
+import Control.Monad.Trans()
 
 import System.Console.Haskeline (InputT
   , defaultSettings
   , getInputLine
   , runInputT
-  , setComplete
   , outputStrLn)
 
 import Control.Monad.State.Strict
@@ -24,11 +20,14 @@ import Utils
 __PROMPT :: String
 __PROMPT = " todo" ++ __PROMPT_SIGN ++ " "
 
+-- funkcja main tworzy pusty stan i wywołuje interaktywną pętlę
 main :: IO ()
 main = do
   time <- getCurrentTime
   void (runStateT (runInputT defaultSettings interloop) $ SD.empty time)
 
+-- inteaktywna pętla, zczytuje polecenia użytkownia, wywołuje odpowiednie
+-- komendy
 interloop :: InputT StateWithIO ()
 interloop = do
   time <- lift getTestTime

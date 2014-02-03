@@ -1,6 +1,6 @@
 module Taskbook
   ( Taskbook(..)
-  , TaskNR
+  --, TaskNR
   , TaskSet
   , empty
   , insert
@@ -12,14 +12,21 @@ module Taskbook
   , doTaskList
   )	where
 
+{-
+Plik ze strutrą danych Taskbook
+jest to poprostu opakowany Data.Set zadań Task
+-}
+
 import Data.Maybe
 import Data.Time (UTCTime)
 import qualified Data.Set as DS
 
 import Task
 
-type TaskNR = Int
+--type TaskNR = Int
+
 type TaskSet = DS.Set Task
+-- książka z zdaniami
 newtype Taskbook = Taskbook {_tbTasks :: TaskSet}
 
 empty :: Taskbook
@@ -66,17 +73,3 @@ doTaskList tbook (x:xs) time = doTaskList (doTask tbook x time) xs time
 
 toList :: Taskbook -> [Task]
 toList = DS.toList . _tbTasks
---doneList :: Taskbook -> [Task]
---doneList = DS.toList . _tbTasks
-
---undoneList :: Taskbook -> [Task]
---undoneList = DS.toList . _tbTasks
-
---allList :: Taskbook -> [Task]
---allList tb = doneList tb ++ undoneList tb
-
-
---getNewTaskNR :: TaskSet -> TaskNR
---getNewTaskNR tmap
---  | DS.null tmap = 1
---  | otherwise = fst (DS.findMax tmap) + 1
